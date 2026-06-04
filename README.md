@@ -1,11 +1,11 @@
-# 🩺 DiabetesRisk — Cloud-Based Diabetes Risk Prediction System
+# 🩺 DiabetesRisk :Cloud-Based Diabetes Risk Prediction System
 
 > **Makerere University · Cloud Computing Coursework Project**  
-> BSc Computer Science · Ssempala Harry
+> BSc Computer Science · Ssempala Harrison Solomon
 
 A cloud-hosted diabetes risk prediction system demonstrating **IaaS, PaaS, and SaaS** cloud service models, powered by a trained **Soft Voting Ensemble** (Logistic Regression + Random Forest + Neural Network).
 
-**🔗 Live Demo:** `https://<your-username>.github.io/diabetes-predictor/`
+**🔗 Live Demo:** `https://<harrison-maps>.github.io/diabetes-predictor/`
 
 ---
 
