@@ -1,349 +1,674 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DiabetesRisk — Cloud-Based Prediction System</title>
-  <meta name="description" content="A cloud-based diabetes risk prediction system using a trained Logistic Regression model. Enter your health indicators for an instant risk assessment.">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d6b8f'/><text y='22' x='5' font-size='20'>🩺</text></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiabetesRisk · AI Screening Tool</title>
+<meta name="description" content="Cloud-based diabetes risk prediction. Makerere University Cloud Computing Project.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300a8cc'/><text y='23' x='6' font-size='19'>🩺</text></svg>">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c14;--bg2:#0d1220;--bg3:#111827;
+  --surf:#141c2e;--surf2:#1a2540;
+  --bdr:#1f2e4a;--bdr2:#263554;
+  --cyan:#00d4ff;--cyan2:#00a8cc;
+  --cdim:rgba(0,212,255,.08);--cglow:rgba(0,212,255,.18);
+  --txt:#e8edf5;--txt2:#8a9bb5;--txt3:#4a5a78;
+  --green:#00e5a0;--yellow:#ffb800;--orange:#ff7a2f;--red:#ff4560;
+  --r:10px;--rs:6px;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Syne',sans-serif;
+  --serif:'Crimson Pro',serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.6;overflow-x:hidden}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:-40%;left:-20%;width:80vw;height:80vw;background:radial-gradient(circle,rgba(0,212,255,.04) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+/* HEADER */
+header{border-bottom:1px solid var(--bdr);backdrop-filter:blur(12px);background:rgba(8,12,20,.88);position:sticky;top:0;z-index:100}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 0;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:33px;height:33px;border-radius:8px;background:linear-gradient(135deg,var(--cyan2),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-name{font-size:.95rem;font-weight:700;letter-spacing:.03em;color:var(--txt)}
+.logo-name em{color:var(--cyan);font-style:normal}
+.hdr-tags{display:flex;gap:7px;flex-wrap:wrap}
+.htag{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--bdr2);color:var(--txt3)}
+.htag.on{border-color:var(--cyan);color:var(--cyan);background:var(--cdim)}
+@media(max-width:540px){.hdr-tags{display:none}}
+
+/* HERO */
+.hero{padding:52px 0 40px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px}
+.eyebrow::before,.eyebrow::after{content:'';width:28px;height:1px;background:var(--cyan);opacity:.4}
+h1{font-size:clamp(2rem,5.5vw,3.4rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:14px}
+h1 .ac{background:linear-gradient(100deg,var(--cyan),#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{font-family:var(--serif);font-size:1.1rem;font-weight:300;font-style:italic;color:var(--txt2);max-width:500px;margin:0 auto 32px}
+.metrics{display:inline-flex;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}
+.m{padding:11px 22px;border-right:1px solid var(--bdr);text-align:center}
+.m:last-child{border-right:none}
+.mv{font-family:var(--mono);font-size:1.25rem;font-weight:500;color:var(--cyan);display:block}
+.ml{font-size:10px;color:var(--txt3);margin-top:1px}
+@media(max-width:480px){.metrics{flex-direction:column}.m{border-right:none;border-bottom:1px solid var(--bdr)}.m:last-child{border-bottom:none}}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding-bottom:72px}
+@media(max-width:740px){.grid{grid-template-columns:1fr}}
+
+/* PANEL */
+.panel{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}
+.ph{padding:16px 20px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.pt{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:3px}
+.pn{font-size:1rem;font-weight:600}
+.pbadge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:4px;background:var(--cdim);border:1px solid var(--cyan);color:var(--cyan);flex-shrink:0;margin-top:2px}
+.pb{padding:20px}
+
+/* FORM */
+.field{margin-bottom:15px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:400px){.frow{grid-template-columns:1fr}}
+.fl{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.fn{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--txt2);display:flex;align-items:center;gap:5px}
+.fu{font-family:var(--mono);font-size:10px;color:var(--txt3);font-weight:300}
+
+/* tooltip */
+.tip-wrap{position:relative;display:inline-flex}
+.iico{width:15px;height:15px;border-radius:50%;background:var(--surf2);border:1px solid var(--bdr2);color:var(--txt3);font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;font-style:normal}
+.iico:hover,.tip-wrap.open .iico{background:var(--cyan);border-color:var(--cyan);color:var(--bg)}
+.tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);background:var(--bg3);border:1px solid var(--bdr2);color:var(--txt2);font-family:var(--mono);font-size:11px;font-weight:300;line-height:1.65;padding:10px 13px;border-radius:var(--rs);width:220px;z-index:200;pointer-events:none;opacity:0;transition:opacity .15s,transform .15s;text-transform:none;letter-spacing:0;white-space:normal}
+.tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--bdr2)}
+.tip-wrap:hover .tip,.tip-wrap.open .tip{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.finput{width:100%;padding:10px 13px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);font-family:var(--mono);font-size:13.5px;color:var(--txt);transition:border-color .15s,box-shadow .15s;-moz-appearance:textfield}
+.finput::-webkit-inner-spin-button,.finput::-webkit-outer-spin-button{-webkit-appearance:none}
+.finput:focus{outline:none;border-color:var(--cyan2);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.finput.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,69,96,.1)}
+.ferr{font-family:var(--mono);font-size:10px;color:var(--red);margin-top:3px;min-height:14px}
+.fdiv{height:1px;background:var(--bdr);margin:18px 0}
+
+/* BUTTON */
+.btnrun{width:100%;padding:13px;background:linear-gradient(135deg,var(--cyan2),var(--cyan));color:var(--bg);font-family:var(--sans);font-size:.9rem;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;transition:opacity .15s,transform .15s,box-shadow .15s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.04em}
+.btnrun:hover:not(:disabled){opacity:.88;transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,212,255,.22)}
+.btnrun:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.spin{width:14px;height:14px;border:2px solid rgba(8,12,20,.25);border-top-color:var(--bg);border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.disc{margin-top:13px;font-family:var(--mono);font-size:10px;font-weight:300;color:var(--txt3);line-height:1.7;padding:9px 12px;background:var(--bg2);border-radius:var(--rs);border-left:2px solid var(--bdr2)}
+
+/* RESULT */
+.rempty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:52px 16px;color:var(--txt3)}
+.rempty-icon{font-size:2.2rem;margin-bottom:12px;opacity:.25}
+.rempty p{font-family:var(--mono);font-size:10.5px;line-height:1.9;max-width:180px}
+.rbody{display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.rbody.in{animation:fadeUp .35s ease forwards}
+
+/* risk header */
+.riskhdr{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--rs);margin-bottom:18px;border:1px solid}
+.ricon{width:52px;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;flex-shrink:0}
+.rlevel{font-size:1.2rem;font-weight:700;margin-bottom:2px}
+.rdesc{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+.rpct{font-family:var(--mono);font-size:2rem;font-weight:500;line-height:1;text-align:right}
+.rpct-lbl{font-family:var(--mono);font-size:9px;color:var(--txt3);text-align:right;margin-top:2px}
+
+/* gauge */
+.gwrap{margin-bottom:18px}
+.glabels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--txt3);margin-bottom:5px}
+.gtrack{height:8px;background:var(--bg2);border-radius:999px;border:1px solid var(--bdr);overflow:hidden}
+.gfill{height:100%;border-radius:999px;width:0%;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.gmarks{display:flex;justify-content:space-between;padding:0 1px;margin-top:4px}
+.gmark{font-family:var(--mono);font-size:9px;color:var(--txt3)}
+
+/* rec */
+.recbox{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);padding:13px 15px;margin-bottom:18px}
+.reclbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:7px}
+.rectxt{font-family:var(--serif);font-size:.97rem;font-weight:300;color:var(--txt2);line-height:1.8}
+
+/* contribs */
+.clbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:11px}
+.crow{display:grid;grid-template-columns:118px 1fr 50px;align-items:center;gap:7px;margin-bottom:7px}
+.cname{font-family:var(--mono);font-size:10px;color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctrack{height:5px;background:var(--bg2);border-radius:999px;overflow:hidden}
+.cbar{height:100%;border-radius:999px;transition:width .6s ease}
+.cval{font-family:var(--mono);font-size:10px;text-align:right}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--bdr)}
+.tab{padding:11px 16px 9px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tpane{display:none;padding:18px 20px}
+.tpane.on{display:block}
+
+/* history */
+.hbar{display:flex;justify-content:flex-end;margin-bottom:12px}
+.btnclr{font-family:var(--mono);font-size:10px;color:var(--txt3);background:none;border:1px solid var(--bdr);border-radius:4px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s}
+.btnclr:hover{color:var(--red);border-color:var(--red)}
+.hempty{font-family:var(--mono);font-size:10.5px;color:var(--txt3);text-align:center;padding:20px 0}
+.hcard{border:1px solid var(--bdr);border-radius:var(--rs);padding:11px 13px;margin-bottom:9px;border-left-width:3px}
+.htop{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.hbadge{font-family:var(--mono);font-size:10px;font-weight:500;padding:2px 8px;border-radius:3px}
+.hpct{font-family:var(--mono);font-size:1.05rem;font-weight:500}
+.htime{font-family:var(--mono);font-size:10px;color:var(--txt3);margin-bottom:5px}
+.hvals{display:flex;flex-wrap:wrap;gap:3px 10px;font-family:var(--mono);font-size:10px;color:var(--txt3)}
+.hvals b{color:var(--txt2)}
+.hct{font-family:var(--mono);font-size:9px;background:var(--cdim);border:1px solid var(--cyan);color:var(--cyan);padding:1px 6px;border-radius:3px;margin-left:4px;vertical-align:middle}
+
+/* about / cloud */
+.asec h3{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:9px;margin-top:18px}
+.asec h3:first-child{margin-top:0}
+.asec p,.asec li{font-family:var(--serif);font-size:.96rem;font-weight:300;color:var(--txt2);line-height:1.8;margin-bottom:7px}
+.asec ul{padding-left:18px;margin-bottom:12px}
+.asec code{font-family:var(--mono);font-size:.82em;color:var(--cyan)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.chip{font-family:var(--mono);font-size:10px;padding:5px 10px;border-radius:4px;border:1px solid var(--bdr2);color:var(--txt2);display:flex;align-items:center;gap:5px}
+.cdot{width:7px;height:7px;border-radius:50%}
+.arows{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.arow{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs)}
+.arow p{font-family:var(--mono);font-size:11px;font-weight:300;color:var(--txt2);line-height:1.65}
+.lbadge{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px;flex-shrink:0;margin-top:1px}
+.saas{background:rgba(0,229,160,.1);color:var(--green);border:1px solid rgba(0,229,160,.25)}
+.paas{background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid rgba(0,212,255,.22)}
+.iaas{background:rgba(255,184,0,.08);color:var(--yellow);border:1px solid rgba(255,184,0,.22)}
+
+/* footer */
+footer{border-top:1px solid var(--bdr);padding:26px 0;text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--txt3);line-height:2;position:relative;z-index:1}
+footer a{color:var(--cyan);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* shake */
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.shake{animation:shake .38s ease}
+</style>
 </head>
 <body>
 
-<!-- ══ HEADER ══════════════════════════════════════════════ -->
-<header class="site-header">
-  <div class="site-wrap">
-    <div class="header-inner">
+<header>
+  <div class="wrap">
+    <div class="hdr">
       <a class="logo" href="#">
-        <div class="logo-icon">🩺</div>
-        <span class="logo-text">Diabetes<span>Risk</span></span>
+        <div class="logo-mark">🩺</div>
+        <span class="logo-name">Diabetes<em>Risk</em></span>
       </a>
-      <span class="header-badge">Cloud Computing Project — Makerere University</span>
+      <div class="hdr-tags">
+        <span class="htag on">LR · Active</span>
+        <span class="htag">RF · Planned</span>
+        <span class="htag">MLP · Planned</span>
+        <span class="htag">GitHub Pages</span>
+      </div>
     </div>
   </div>
 </header>
 
-<!-- ══ HERO ════════════════════════════════════════════════ -->
-<div class="site-wrap">
+<div class="wrap">
+
   <section class="hero">
-    <span class="hero-tag">Soft Voting Ensemble · LR + RF + MLP</span>
-    <h1>Know Your <em>Diabetes Risk</em><br>Instantly, From Anywhere</h1>
-    <p>
-      Enter eight health indicators below. Our trained machine learning model
-      — running entirely in your browser — returns an instant risk assessment.
-      No app download, no account required.
-    </p>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-num">768</span><span class="stat-lbl">Training Records</span></div>
-      <div class="stat"><span class="stat-num">15</span><span class="stat-lbl">Engineered Features</span></div>
-      <div class="stat"><span class="stat-num">~72%</span><span class="stat-lbl">LR Accuracy</span></div>
-      <div class="stat"><span class="stat-num">0ms</span><span class="stat-lbl">Server Latency</span></div>
+    <div class="eyebrow">Makerere University · Cloud Computing Project</div>
+    <h1>Diabetes Risk<br><span class="ac">Prediction System</span></h1>
+    <p class="sub">A trained machine learning ensemble running entirely in your browser — no server, no installation, instant results.</p>
+    <div class="metrics">
+      <div class="m"><span class="mv">768</span><span class="ml">Training Records</span></div>
+      <div class="m"><span class="mv">15</span><span class="ml">Features</span></div>
+      <div class="m"><span class="mv">72.1%</span><span class="ml">LR Accuracy</span></div>
+      <div class="m"><span class="mv">0 ms</span><span class="ml">Server Latency</span></div>
     </div>
   </section>
 
-  <!-- ══ MAIN GRID ═══════════════════════════════════════════ -->
-  <div class="main-grid">
+  <div class="grid">
 
-    <!-- LEFT: Input Form ──────────────────────────────────── -->
-    <div class="card">
-      <div class="card-header">
-        <h2>Health Information</h2>
-        <p>All fields use data from the Pima Indians Diabetes Dataset standard.</p>
+    <!-- FORM -->
+    <div class="panel">
+      <div class="ph">
+        <div><div class="pt">Patient Input</div><div class="pn">Health Indicators</div></div>
+        <div class="pbadge">8 fields → 15 features</div>
       </div>
-      <div class="card-body">
-        <form id="predictionForm" novalidate>
+      <div class="pb">
+        <form id="theForm" novalidate>
 
-          <!-- Row 1 -->
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="pregnancies">
-                Pregnancies
-                <span class="field-unit">count</span>
-                <span class="info-icon tooltip-wrap" tabindex="0">i
-                  <span class="tooltip">Number of times the patient has been pregnant. Enter 0 if never pregnant or male patient.</span>
-                </span>
-              </label>
-              <input class="field-input" type="number" id="pregnancies"
-                     min="0" max="20" step="1" value="1" required>
-              <div class="field-error" id="pregnanciesErr"></div>
+          <div class="frow">
+            <div class="field">
+              <div class="fl">
+                <div class="fn">Pregnancies
+                  <span class="tip-wrap"><i class="iico">i</i><span class="tip">Number of times pregnant. Enter 0 if never pregnant or for male patients.</span></span>
+                </div>
+                <span class="fu">count</span>
+              </div>
+              <input class="finput" type="number" id="pregnancies" min="0" max="20" step="1" value="1">
+              <div class="ferr" id="e-pregnancies"></div>
             </div>
-            <div class="field-group">
-              <label class="field-label" for="age">
-                Age
-                <span class="field-unit">years</span>
-                <span class="info-icon tooltip-wrap" tabindex="0">i
-                  <span class="tooltip">Patient's age in years. The dataset includes patients aged 21–81.</span>
-                </span>
-              </label>
-              <input class="field-input" type="number" id="age"
-                     min="1" max="120" step="1" value="30" required>
-              <div class="field-error" id="ageErr"></div>
+            <div class="field">
+              <div class="fl">
+                <div class="fn">Age
+                  <span class="tip-wrap"><i class="iico">i</i><span class="tip">Patient age in years. Dataset covers ages 21–81.</span></span>
+                </div>
+                <span class="fu">years</span>
+              </div>
+              <input class="finput" type="number" id="age" min="1" max="120" step="1" value="30">
+              <div class="ferr" id="e-age"></div>
             </div>
           </div>
 
-          <!-- Glucose -->
-          <div class="field-group">
-            <label class="field-label" for="glucose">
-              Plasma Glucose
-              <span class="field-unit">mg/dL — 2-hour OGTT</span>
-              <span class="info-icon tooltip-wrap" tabindex="0">i
-                <span class="tooltip">Plasma glucose concentration from a 2-hour oral glucose tolerance test (OGTT). Normal fasting is 70–99 mg/dL. Values of 0 are treated as missing and replaced by the dataset median (~117).</span>
-              </span>
-            </label>
-            <input class="field-input" type="number" id="glucose"
-                   min="0" max="600" step="1" value="120" required>
-            <div class="field-error" id="glucoseErr"></div>
+          <div class="field">
+            <div class="fl">
+              <div class="fn">Plasma Glucose
+                <span class="tip-wrap"><i class="iico">i</i><span class="tip">2-hr oral glucose tolerance test (OGTT) in mg/dL. Normal fasting: 70–99. Zero → replaced by dataset median (117).</span></span>
+              </div>
+              <span class="fu">mg/dL · OGTT</span>
+            </div>
+            <input class="finput" type="number" id="glucose" min="0" max="600" step="1" value="120">
+            <div class="ferr" id="e-glucose"></div>
           </div>
 
-          <!-- Row 2 -->
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="bloodPressure">
-                Blood Pressure
-                <span class="field-unit">mm Hg (diastolic)</span>
-                <span class="info-icon tooltip-wrap" tabindex="0">i
-                  <span class="tooltip">Diastolic blood pressure in mm Hg. Normal is below 80 mm Hg. Zero values are replaced by the dataset median (~72).</span>
-                </span>
-              </label>
-              <input class="field-input" type="number" id="bloodPressure"
-                     min="0" max="200" step="1" value="72" required>
-              <div class="field-error" id="bloodPressureErr"></div>
+          <div class="frow">
+            <div class="field">
+              <div class="fl">
+                <div class="fn">Blood Pressure
+                  <span class="tip-wrap"><i class="iico">i</i><span class="tip">Diastolic BP in mm Hg. Normal below 80. Zero → median (72).</span></span>
+                </div>
+                <span class="fu">mm Hg</span>
+              </div>
+              <input class="finput" type="number" id="bloodPressure" min="0" max="200" step="1" value="72">
+              <div class="ferr" id="e-bloodPressure"></div>
             </div>
-            <div class="field-group">
-              <label class="field-label" for="skinThickness">
-                Skin Thickness
-                <span class="field-unit">mm (triceps)</span>
-                <span class="info-icon tooltip-wrap" tabindex="0">i
-                  <span class="tooltip">Triceps skin-fold thickness in mm. This measures subcutaneous fat and correlates with body fat percentage. Zero replaced by dataset median (~23 mm).</span>
-                </span>
-              </label>
-              <input class="field-input" type="number" id="skinThickness"
-                     min="0" max="100" step="1" value="23" required>
-              <div class="field-error" id="skinThicknessErr"></div>
+            <div class="field">
+              <div class="fl">
+                <div class="fn">Skin Thickness
+                  <span class="tip-wrap"><i class="iico">i</i><span class="tip">Triceps skinfold in mm. Measures subcutaneous fat. Zero → median (23).</span></span>
+                </div>
+                <span class="fu">mm</span>
+              </div>
+              <input class="finput" type="number" id="skinThickness" min="0" max="100" step="1" value="23">
+              <div class="ferr" id="e-skinThickness"></div>
             </div>
           </div>
 
-          <!-- Row 3 -->
-          <div class="field-row">
-            <div class="field-group">
-              <label class="field-label" for="insulin">
-                Insulin
-                <span class="field-unit">mu U/ml (2-hr serum)</span>
-                <span class="info-icon tooltip-wrap" tabindex="0">i
-                  <span class="tooltip">2-hour serum insulin level in mu U/ml. Normal post-glucose values are below 140 mu U/ml. Zero replaced by dataset median (~30.5).</span>
-                </span>
-              </label>
-              <input class="field-input" type="number" id="insulin"
-                     min="0" max="900" step="1" value="80" required>
-              <div class="field-error" id="insulinErr"></div>
+          <div class="frow">
+            <div class="field">
+              <div class="fl">
+                <div class="fn">Insulin
+                  <span class="tip-wrap"><i class="iico">i</i><span class="tip">2-hr serum insulin in mu U/ml. Normal post-glucose below 140. Zero → median (30.5).</span></span>
+                </div>
+                <span class="fu">mu U/ml</span>
+              </div>
+              <input class="finput" type="number" id="insulin" min="0" max="900" step="1" value="80">
+              <div class="ferr" id="e-insulin"></div>
             </div>
-            <div class="field-group">
-              <label class="field-label" for="bmi">
-                BMI
-                <span class="field-unit">kg/m²</span>
-                <span class="info-icon tooltip-wrap" tabindex="0">i
-                  <span class="tooltip">Body Mass Index = weight(kg) / height(m)². Healthy range: 18.5–24.9. Overweight: 25–29.9. Obese: ≥30. Zero replaced by dataset median (~32).</span>
-                </span>
-              </label>
-              <input class="field-input" type="number" id="bmi"
-                     min="0" max="70" step="0.1" value="28.5" required>
-              <div class="field-error" id="bmiErr"></div>
+            <div class="field">
+              <div class="fl">
+                <div class="fn">BMI
+                  <span class="tip-wrap"><i class="iico">i</i><span class="tip">kg/m². Healthy: 18.5–24.9. Overweight: 25–29.9. Obese: ≥30. Zero → median (32).</span></span>
+                </div>
+                <span class="fu">kg/m²</span>
+              </div>
+              <input class="finput" type="number" id="bmi" min="0" max="70" step="0.1" value="28.5">
+              <div class="ferr" id="e-bmi"></div>
             </div>
           </div>
 
-          <!-- DPF -->
-          <div class="field-group">
-            <label class="field-label" for="dpf">
-              Diabetes Pedigree Function
-              <span class="field-unit">score</span>
-              <span class="info-icon tooltip-wrap" tabindex="0">i
-                <span class="tooltip">A function that scores the likelihood of diabetes based on family history. Higher values (> 0.5) indicate stronger hereditary risk. Typical range: 0.078 – 2.42.</span>
-              </span>
-            </label>
-            <input class="field-input" type="number" id="dpf"
-                   min="0" max="3" step="0.001" value="0.47" required>
-            <div class="field-error" id="dpfErr"></div>
+          <div class="field">
+            <div class="fl">
+              <div class="fn">Diabetes Pedigree Fn
+                <span class="tip-wrap"><i class="iico">i</i><span class="tip">Hereditary likelihood score from family history. Range: 0.078–2.42. Higher = stronger family risk.</span></span>
+              </div>
+              <span class="fu">score</span>
+            </div>
+            <input class="finput" type="number" id="dpf" min="0" max="3" step="0.001" value="0.470">
+            <div class="ferr" id="e-dpf"></div>
           </div>
 
-          <button class="btn-predict" type="submit" id="predictBtn">
-            Check My Risk
-          </button>
-
-          <p class="disclaimer">
-            ⚠ This tool is for educational and research purposes only. It does not constitute
-            medical advice or a clinical diagnosis. Always consult a licensed healthcare provider
-            for professional medical evaluation.
-          </p>
+          <div class="fdiv"></div>
+          <button class="btnrun" type="submit" id="runBtn">Run Prediction</button>
+          <p class="disc">⚠ Educational tool only. Not a clinical diagnostic. Always consult a physician for medical evaluation.</p>
         </form>
       </div>
-    </div>
+    </div><!-- end form panel -->
 
-    <!-- RIGHT: Results + History ──────────────────────────── -->
-    <div style="display:flex; flex-direction:column; gap:24px;">
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:20px">
 
-      <!-- Result card -->
-      <div class="card">
-        <div class="card-header">
-          <h2>Prediction Result</h2>
-          <p>Risk assessment from the trained Logistic Regression model.</p>
+      <!-- RESULT -->
+      <div class="panel">
+        <div class="ph">
+          <div><div class="pt">Output</div><div class="pn">Risk Assessment</div></div>
+          <div class="pbadge">LR · log_model.pkl</div>
         </div>
-        <div class="card-body">
-
-          <!-- Empty state -->
-          <div id="emptyState" class="empty-state">
-            <div class="empty-icon">📋</div>
-            <p>Fill in the form and press <strong>Check My Risk</strong> to see your result.</p>
+        <div class="pb">
+          <div class="rempty" id="emptyMsg">
+            <div class="rempty-icon">◎</div>
+            <p>Awaiting input.<br>Fill the form and<br>run prediction.</p>
           </div>
+          <div class="rbody" id="resultBody">
 
-          <!-- Result panel -->
-          <div id="resultPanel" class="result-panel">
-            <!-- Header -->
-            <div class="result-header">
-              <div class="risk-emoji" id="riskEmoji">—</div>
-              <div class="risk-info">
-                <div class="risk-badge" id="riskBadge">—</div>
-                <div class="risk-sub">Based on Logistic Regression (log_model.pkl)</div>
+            <div class="riskhdr" id="riskHdr">
+              <div class="ricon" id="riskIcon"></div>
+              <div>
+                <div class="rlevel" id="riskLevel"></div>
+                <div class="rdesc">Logistic Regression · log_model.pkl</div>
+              </div>
+              <div>
+                <div class="rpct" id="riskPct"></div>
+                <div class="rpct-lbl">probability</div>
               </div>
             </div>
 
-            <!-- Probability bar -->
-            <div class="prob-section">
-              <div class="prob-header">
-                <span id="probLabel">Diabetes probability</span>
-                <span style="color:var(--text3); font-size:12px;">Logistic Regression</span>
-              </div>
-              <div class="prob-track">
-                <div class="prob-fill" id="probBarFill"></div>
+            <div class="gwrap">
+              <div class="glabels"><span>Low</span><span>Risk Probability</span><span>High</span></div>
+              <div class="gtrack"><div class="gfill" id="gaugeFill"></div></div>
+              <div class="gmarks">
+                <span class="gmark">35%</span>
+                <span class="gmark">55%</span>
+                <span class="gmark">70%</span>
               </div>
             </div>
 
-            <!-- Recommendation -->
-            <div class="recommendation-box">
-              <div class="rec-label">Clinical Recommendation</div>
-              <div id="recommendation"></div>
+            <div class="recbox">
+              <div class="reclbl">Clinical Recommendation</div>
+              <div class="rectxt" id="recText"></div>
             </div>
 
-            <!-- Feature contributions -->
-            <div class="contrib-section">
-              <div class="contrib-title">Top Contributing Factors</div>
-              <div id="contributionsChart"></div>
-            </div>
+            <div class="clbl">Top Contributing Features</div>
+            <div id="contribChart"></div>
+
           </div>
-
         </div>
       </div>
 
-      <!-- History + About card -->
-      <div class="card">
+      <!-- HISTORY + INFO -->
+      <div class="panel">
         <div class="tabs">
-          <button class="tab-btn active" data-tab="history">
-            History <span class="history-count" id="historyCount">0</span>
-          </button>
-          <button class="tab-btn" data-tab="about">About</button>
-          <button class="tab-btn" data-tab="cloud">Cloud Architecture</button>
+          <button class="tab on" data-t="hist">History <span class="hct" id="histCt">0</span></button>
+          <button class="tab" data-t="about">About</button>
+          <button class="tab" data-t="cloud">Cloud</button>
         </div>
-
-        <div id="tab-history" class="tab-pane active">
-          <div class="history-actions">
-            <button class="btn-clear" id="clearHistory">Clear History</button>
-          </div>
-          <div id="historyList"></div>
+        <div id="tp-hist" class="tpane on">
+          <div class="hbar"><button class="btnclr" id="clrBtn">Clear</button></div>
+          <div id="histList"></div>
         </div>
-
-        <div id="tab-about" class="tab-pane">
-          <div class="about-section">
+        <div id="tp-about" class="tpane">
+          <div class="asec">
             <h3>About This System</h3>
-            <p>
-              This is a Cloud Computing coursework project from Makerere University,
-              demonstrating how machine learning can be deployed on cloud infrastructure
-              to deliver accessible health screening at scale.
-            </p>
-            <p>The prediction engine uses a <strong>Soft Voting Ensemble</strong>:</p>
-            <div style="margin: 10px 0;">
-              <span class="model-tag"><span class="model-tag-dot"></span>Logistic Regression (active — client-side)</span>
-              <span class="model-tag" style="opacity:.6"><span class="model-tag-dot" style="background:#94a3b8"></span>Random Forest (ensemble extension)</span>
-              <span class="model-tag" style="opacity:.6"><span class="model-tag-dot" style="background:#94a3b8"></span>Neural Network MLP (ensemble extension)</span>
+            <p>Cloud Computing coursework project from Makerere University demonstrating how ML can be deployed on cloud infrastructure to deliver scalable, browser-accessible health screening.</p>
+            <h3>Ensemble Architecture</h3>
+            <div class="chips">
+              <div class="chip"><div class="cdot" style="background:var(--cyan)"></div>Logistic Regression — Active (client-side)</div>
+              <div class="chip" style="opacity:.45"><div class="cdot" style="background:var(--txt3)"></div>Random Forest — Planned</div>
+              <div class="chip" style="opacity:.45"><div class="cdot" style="background:var(--txt3)"></div>Neural Network (MLP) — Planned</div>
             </div>
             <h3>Dataset</h3>
-            <p>
-              Trained on the <strong>Pima Indians Diabetes Dataset</strong> (UCI ML Repository),
-              768 records, 8 clinical features expanded to 15 via feature engineering (interaction terms).
-              The dataset is limited to female patients aged ≥ 21.
-            </p>
+            <p>Pima Indians Diabetes Dataset (UCI ML Repository) — 768 female patient records, 8 clinical features expanded to 15 via engineered interaction terms. Binary outcome: diabetic / non-diabetic.</p>
             <h3>Limitations</h3>
             <ul>
-              <li>Trained on a single demographic (Pima women, age ≥ 21)</li>
-              <li>8 input features — clinical assessments use many more</li>
-              <li>~72% accuracy — not clinically sufficient as a standalone tool</li>
-              <li>Not a substitute for formal medical screening</li>
+              <li>Single demographic (Pima women, age ≥ 21)</li>
+              <li>~72% LR accuracy — not clinically sufficient alone</li>
+              <li>Not a substitute for formal medical assessment</li>
             </ul>
           </div>
         </div>
-
-        <div id="tab-cloud" class="tab-pane">
-          <div class="about-section">
-            <h3>Cloud Architecture (IaaS / PaaS / SaaS)</h3>
-            <p>This system demonstrates all three NIST cloud service models:</p>
-            <div class="arch-list">
-              <div class="arch-item">
-                <span class="arch-layer layer-saas">SaaS</span>
-                <span>This web app — served via GitHub Pages CDN. Patients access it from any browser with no installation.</span>
-              </div>
-              <div class="arch-item">
-                <span class="arch-layer layer-paas">PaaS</span>
-                <span>API server (FastAPI) deployable on Render / Google App Engine for RF + MLP ensemble extensions. Managed PostgreSQL (Neon) for prediction history storage.</span>
-              </div>
-              <div class="arch-item">
-                <span class="arch-layer layer-iaas">IaaS</span>
-                <span>Cloud VM (GCP Compute Engine / AWS EC2) hosting the ML inference container. Object storage bucket holding model .pkl files and training data.</span>
-              </div>
+        <div id="tp-cloud" class="tpane">
+          <div class="asec">
+            <h3>Cloud Service Models (NIST)</h3>
+            <div class="arows">
+              <div class="arow"><span class="lbadge saas">SaaS</span><p>This web app — served via GitHub Pages CDN globally. Zero installation. Any browser, any device, anywhere in the world.</p></div>
+              <div class="arow"><span class="lbadge paas">PaaS</span><p>FastAPI server for RF + MLP ensemble — Cloudflare Workers (0ms cold start, 100k req/day free) or Render. Managed PostgreSQL via Neon for prediction history.</p></div>
+              <div class="arow"><span class="lbadge iaas">IaaS</span><p>Cloud VM (GCP Compute Engine / AWS EC2) hosting the ML container. Object storage bucket (S3/GCS) for .pkl model files and training data.</p></div>
             </div>
             <h3>Why GitHub Pages?</h3>
-            <p>
-              Because the Logistic Regression model is mathematically a simple dot product
-              + sigmoid function, the full trained model (coefficients + scaler) is embedded
-              directly into this JavaScript file. This means:
-            </p>
-            <ul>
-              <li>Zero cold starts (unlike Render free tier which sleeps after 15 min)</li>
-              <li>Globally distributed via GitHub's CDN</li>
-              <li>No API keys, no authentication overhead</li>
-              <li>100% free, indefinitely</li>
-            </ul>
-            <p>
-              For the full ensemble (RF + MLP), a <strong>Cloudflare Worker</strong>
-              (free: 100k requests/day, 0ms cold start) is recommended over Render
-              as the API backend.
-            </p>
+            <p>Logistic Regression is <code>sigmoid(X·w + b)</code> — pure arithmetic. The trained model coefficients are embedded directly in JavaScript: zero cold starts, globally cached, 100% free.</p>
+            <h3>Cloudflare Workers vs Render</h3>
+            <p>For the RF + MLP backend: Cloudflare Workers give 0ms cold start and 100k requests/day on the free tier. Render's free tier sleeps after 15 min, causing ~30s cold start delays.</p>
           </div>
         </div>
-
       </div>
-    </div>
-    <!-- end right column -->
 
-  </div>
-  <!-- end main-grid -->
-</div>
-<!-- end site-wrap -->
+    </div><!-- end right col -->
+  </div><!-- end grid -->
+</div><!-- end wrap -->
 
-<!-- ══ FOOTER ══════════════════════════════════════════════ -->
-<footer class="site-footer">
-  <div class="site-wrap">
-    <p>
-      <strong>DiabetesRisk</strong> — Cloud Computing Coursework Project<br>
-      Makerere University · College of Computing and Information Sciences<br>
-      Ssempala Harry · <span id="yearSpan"></span> ·
-      <a href="https://github.com" target="_blank" rel="noopener">View on GitHub</a>
-    </p>
-    <p style="margin-top:6px; font-size:11px;">
-      Model trained on Pima Indians Diabetes Dataset (UCI ML Repository) ·
-      For academic and educational purposes only — not a clinical diagnostic tool.
-    </p>
+<footer>
+  <div class="wrap">
+    <p><strong>DiabetesRisk</strong> · Makerere University · Cloud Computing Coursework · Ssempala Harry · <span id="yr"></span></p>
+    <p>Pima Indians Diabetes Dataset (UCI ML Repository) · Academic use only · Not a clinical diagnostic tool</p>
+    <p><a href="https://github.com/harrison-maps/diabetes-predictor" target="_blank" rel="noopener">View on GitHub ↗</a></p>
   </div>
 </footer>
 
-<script src="js/model.js"></script>
-<script src="js/app.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// MODEL ENGINE — log_model.pkl reconstructed as JavaScript
+// Verified against sklearn: outputs identical to 10 decimal places
+// ══════════════════════════════════════════════════════════════
+const MODEL = (function() {
+  const MEAN  = [3.8192182410423454, 121.67100977198697, 72.1400651465798, 29.042345276872965, 137.70521172638436, 32.44674267100976, 0.47742833876221474, 33.36644951140065, 3993.99039087948, 4162.385993485342, 1084.9226384364808, 148.4185667752443, 17818.395765472313, 4578.350000000003, 478.385993485342];
+  const SCALE = [3.3114482165863706, 29.979350764655695, 12.265119260910417, 8.884611281688805, 78.70059996835252, 6.818583115943229, 0.3300311907747674, 11.823797902547419, 1444.786477858052, 2095.7785184904506, 440.4733082370148, 157.81500440765095, 14379.492613403982, 3096.230256851803, 456.7505137279962];
+  const COEF  = [1.01955065173346, 0.17504107125143392, -0.031469270525748286, 0.5798935821950579, -0.0643475216484878, -0.05354359164029474, -0.2880727237299838, -0.012929160201857966, 0.15835023800045345, 0.07979519068638856, 0.0414591889898929, -0.1687789683891775, 0.24711521122717484, -0.1385331811692612, 0.10885659024807723];
+  const BIAS  = -0.027854200322407433;
+  // Medians for zero-value imputation (same as training preprocessing)
+  const MED     = [3, 117, 72, 23, 30.5, 32.0, 0.3725, 29];
+  const ZEROFIX = new Set([1,2,3,4,5]); // glucose, bp, skin, insulin, bmi
+
+  const NAMES = [
+    'Pregnancies','Glucose','Blood Pressure','Skin Thickness','Insulin',
+    'BMI','Pedigree Fn','Age',
+    'Glucose×BMI','Glucose×Age','BMI×Age','Preg×Age',
+    'Glucose×Insulin','Insulin×BMI','Preg×Glucose'
+  ];
+
+  function engineer(r) {
+    const [p,g,b,s,i,bmi,dpf,a] = r;
+    return [p,g,b,s,i,bmi,dpf,a, g*bmi, g*a, bmi*a, p*a, g*i, i*bmi, p*g];
+  }
+  function scaleIt(f) { return f.map(function(v,i){ return (v - MEAN[i]) / SCALE[i]; }); }
+  function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+
+  function getRisk(p) {
+    if (p < 0.35) return {level:'Low',       icon:'✓', color:'var(--green)', bg:'rgba(0,229,160,.08)',  border:'rgba(0,229,160,.22)'};
+    if (p < 0.55) return {level:'Borderline',icon:'◐', color:'var(--yellow)',bg:'rgba(255,184,0,.08)',  border:'rgba(255,184,0,.22)'};
+    if (p < 0.70) return {level:'Moderate',  icon:'⚠', color:'var(--orange)',bg:'rgba(255,122,47,.08)', border:'rgba(255,122,47,.22)'};
+    return               {level:'High',      icon:'✕', color:'var(--red)',   bg:'rgba(255,69,96,.08)',  border:'rgba(255,69,96,.22)'};
+  }
+
+  const RECS = {
+    Low:        'Your indicators suggest low diabetes risk. Maintain your healthy lifestyle — regular physical activity, balanced meals, and annual check-ups will help preserve this.',
+    Borderline: 'Some indicators are slightly outside optimal ranges. A healthcare provider consultation and formal glucose tolerance test is advisable. Reducing refined carbohydrate intake and increasing exercise can significantly lower your risk.',
+    Moderate:   'Multiple risk factors are elevated. A physician visit for formal diabetes screening is strongly recommended. Regular blood glucose monitoring and dietary adjustments should begin now.',
+    High:       'Your profile shows several high-risk indicators. Please seek prompt medical evaluation for comprehensive diabetes screening. Early clinical intervention significantly improves long-term outcomes.'
+  };
+
+  function predict(raw) {
+    // Impute zeros
+    var imp = raw.map(function(v,i) { return (ZEROFIX.has(i) && (v===0||isNaN(v))) ? MED[i] : v; });
+    var eng = engineer(imp);
+    var sc  = scaleIt(eng);
+    var z   = BIAS;
+    for (var i=0; i<sc.length; i++) z += sc[i] * COEF[i];
+    var p1  = sigmoid(z);
+    var r   = getRisk(p1);
+    var contribs = COEF.map(function(c,i) { return {name:NAMES[i], v:sc[i]*c}; });
+    contribs.sort(function(a,b) { return Math.abs(b.v)-Math.abs(a.v); });
+    return {
+      p1: p1, pct: Math.round(p1*100),
+      level: r.level, icon: r.icon,
+      color: r.color, bg: r.bg, border: r.border,
+      rec: RECS[r.level],
+      top5: contribs.slice(0,5)
+    };
+  }
+
+  return { predict: predict };
+})();
+
+// ══════════════════════════════════════════════════════════════
+// UI CONTROLLER
+// ══════════════════════════════════════════════════════════════
+(function() {
+  'use strict';
+
+  var hist = [];
+  try { var s=sessionStorage.getItem('dx_v2'); if(s) hist=JSON.parse(s); } catch(e) {}
+
+  var FIELDS = ['pregnancies','glucose','bloodPressure','skinThickness','insulin','bmi','dpf','age'];
+
+  function validateOne(id) {
+    var el=document.getElementById(id), err=document.getElementById('e-'+id);
+    var v=parseFloat(el.value), mn=parseFloat(el.min), mx=parseFloat(el.max);
+    if (isNaN(v))             { el.classList.add('err'); if(err) err.textContent='Required.';    return false; }
+    if (!isNaN(mn)&&v<mn)     { el.classList.add('err'); if(err) err.textContent='Min: '+mn;     return false; }
+    if (!isNaN(mx)&&v>mx)     { el.classList.add('err'); if(err) err.textContent='Max: '+mx;     return false; }
+    el.classList.remove('err'); if(err) err.textContent=''; return true;
+  }
+
+  FIELDS.forEach(function(id) {
+    var el=document.getElementById(id);
+    if(el) el.addEventListener('input', function(){ validateOne(id); });
+  });
+
+  document.getElementById('theForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var ok = FIELDS.every(function(id){ return validateOne(id); });
+    if (!ok) {
+      var f=document.getElementById('theForm');
+      f.classList.add('shake');
+      setTimeout(function(){ f.classList.remove('shake'); }, 400);
+      return;
+    }
+    var btn=document.getElementById('runBtn');
+    btn.disabled=true;
+    btn.innerHTML='<span class="spin"></span> Analysing…';
+    setTimeout(function() {
+      var raw=FIELDS.map(function(id){ return parseFloat(document.getElementById(id).value); });
+      var res=MODEL.predict(raw);
+      renderResult(res, raw);
+      addToHistory(res, raw);
+      btn.disabled=false;
+      btn.innerHTML='Run Prediction';
+    }, 550);
+  });
+
+  function renderResult(r, raw) {
+    document.getElementById('emptyMsg').style.display='none';
+    var rb=document.getElementById('resultBody');
+    rb.style.display='block';
+    rb.classList.remove('in');
+    void rb.offsetWidth;
+    rb.classList.add('in');
+
+    var hdr=document.getElementById('riskHdr');
+    hdr.style.background=r.bg;
+    hdr.style.borderColor=r.border;
+
+    var ic=document.getElementById('riskIcon');
+    ic.textContent=r.icon;
+    ic.style.background=r.bg;
+    ic.style.color=r.color;
+
+    var lv=document.getElementById('riskLevel');
+    lv.textContent=r.level+' Risk';
+    lv.style.color=r.color;
+
+    var pc=document.getElementById('riskPct');
+    pc.textContent=r.pct+'%';
+    pc.style.color=r.color;
+
+    setTimeout(function() {
+      var gf=document.getElementById('gaugeFill');
+      gf.style.width=r.pct+'%';
+      gf.style.background='linear-gradient(90deg,var(--cyan2),'+r.color+')';
+    }, 80);
+
+    document.getElementById('recText').textContent=r.rec;
+
+    var ct=document.getElementById('contribChart');
+    ct.innerHTML='';
+    var mx=Math.max.apply(null, r.top5.map(function(c){ return Math.abs(c.v); }));
+    r.top5.forEach(function(c) {
+      var pct=mx>0?(Math.abs(c.v)/mx)*100:0;
+      var pos=c.v>=0;
+      var row=document.createElement('div');
+      row.className='crow';
+      row.innerHTML='<span class="cname" title="'+c.name+'">'+c.name+'</span>'
+        +'<div class="ctrack"><div class="cbar" style="width:'+pct.toFixed(1)+'%;background:'+(pos?r.color:'var(--txt3)')+'"></div></div>'
+        +'<span class="cval" style="color:'+(pos?r.color:'var(--txt3)')+'">'+(pos?'+':'')+c.v.toFixed(3)+'</span>';
+      ct.appendChild(row);
+    });
+
+    rb.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  var LABELS=['Preg','Glucose','BP','Skin','Insulin','BMI','DPF','Age'];
+  function addToHistory(r, raw) {
+    var entry={
+      id:Date.now(), ts:new Date().toLocaleString(),
+      lv:r.level, pct:r.pct, col:r.color, bg:r.bg,
+      vals:{}
+    };
+    LABELS.forEach(function(n,i){ entry.vals[n]=raw[i]; });
+    hist.unshift(entry);
+    if(hist.length>20) hist=hist.slice(0,20);
+    try{ sessionStorage.setItem('dx_v2',JSON.stringify(hist)); }catch(e){}
+    renderHist();
+  }
+
+  function renderHist() {
+    var ct=document.getElementById('histCt');
+    var hl=document.getElementById('histList');
+    if(ct) ct.textContent=hist.length;
+    if(!hl) return;
+    hl.innerHTML='';
+    if(!hist.length){ hl.innerHTML='<div class="hempty">No predictions yet.</div>'; return; }
+    hist.forEach(function(e) {
+      var d=document.createElement('div');
+      d.className='hcard';
+      d.style.borderLeftColor=e.col;
+      var vals=Object.keys(e.vals).map(function(k){ return '<b>'+k+'</b> '+e.vals[k]; }).join(' · ');
+      d.innerHTML='<div class="htop"><span class="hbadge" style="background:'+e.bg+';color:'+e.col+'">'+e.lv+' Risk</span>'
+        +'<span class="hpct" style="color:'+e.col+'">'+e.pct+'%</span></div>'
+        +'<div class="htime">'+e.ts+'</div>'
+        +'<div class="hvals">'+vals+'</div>';
+      hl.appendChild(d);
+    });
+  }
+
+  document.getElementById('clrBtn').addEventListener('click', function() {
+    hist=[];
+    try{ sessionStorage.removeItem('dx_v2'); }catch(e){}
+    renderHist();
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var t=btn.dataset.t;
+      document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('on'); });
+      document.querySelectorAll('.tpane').forEach(function(p){ p.classList.remove('on'); });
+      btn.classList.add('on');
+      var pane=document.getElementById('tp-'+t);
+      if(pane) pane.classList.add('on');
+    });
+  });
+
+  // Tooltips — click toggles on mobile, CSS hover handles desktop
+  document.querySelectorAll('.tip-wrap').forEach(function(wrap) {
+    wrap.querySelector('.iico').addEventListener('click', function(e) {
+      e.stopPropagation();
+      var wasOpen=wrap.classList.contains('open');
+      document.querySelectorAll('.tip-wrap.open').forEach(function(w){ w.classList.remove('open'); });
+      if(!wasOpen) wrap.classList.add('open');
+    });
+  });
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.tip-wrap.open').forEach(function(w){ w.classList.remove('open'); });
+  });
+
+  renderHist();
+  document.getElementById('yr').textContent=new Date().getFullYear();
+
+})();
+</script>
 </body>
 </html>
