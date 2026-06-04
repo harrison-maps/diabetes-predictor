@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiabetesRisk — Cloud-Based Prediction System</title>
+  <meta name="description" content="A cloud-based diabetes risk prediction system using a trained Logistic Regression model. Enter your health indicators for an instant risk assessment.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d6b8f'/><text y='22' x='5' font-size='20'>🩺</text></svg>">
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="site-wrap">
+    <div class="header-inner">
+      <a class="logo" href="#">
+        <div class="logo-icon">🩺</div>
+        <span class="logo-text">Diabetes<span>Risk</span></span>
+      </a>
+      <span class="header-badge">Cloud Computing Project — Makerere University</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══ HERO ════════════════════════════════════════════════ -->
+<div class="site-wrap">
+  <section class="hero">
+    <span class="hero-tag">Soft Voting Ensemble · LR + RF + MLP</span>
+    <h1>Know Your <em>Diabetes Risk</em><br>Instantly, From Anywhere</h1>
+    <p>
+      Enter eight health indicators below. Our trained machine learning model
+      — running entirely in your browser — returns an instant risk assessment.
+      No app download, no account required.
+    </p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">768</span><span class="stat-lbl">Training Records</span></div>
+      <div class="stat"><span class="stat-num">15</span><span class="stat-lbl">Engineered Features</span></div>
+      <div class="stat"><span class="stat-num">~72%</span><span class="stat-lbl">LR Accuracy</span></div>
+      <div class="stat"><span class="stat-num">0ms</span><span class="stat-lbl">Server Latency</span></div>
+    </div>
+  </section>
+
+  <!-- ══ MAIN GRID ═══════════════════════════════════════════ -->
+  <div class="main-grid">
+
+    <!-- LEFT: Input Form ──────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Health Information</h2>
+        <p>All fields use data from the Pima Indians Diabetes Dataset standard.</p>
+      </div>
+      <div class="card-body">
+        <form id="predictionForm" novalidate>
+
+          <!-- Row 1 -->
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="pregnancies">
+                Pregnancies
+                <span class="field-unit">count</span>
+                <span class="info-icon tooltip-wrap" tabindex="0">i
+                  <span class="tooltip">Number of times the patient has been pregnant. Enter 0 if never pregnant or male patient.</span>
+                </span>
+              </label>
+              <input class="field-input" type="number" id="pregnancies"
+                     min="0" max="20" step="1" value="1" required>
+              <div class="field-error" id="pregnanciesErr"></div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="age">
+                Age
+                <span class="field-unit">years</span>
+                <span class="info-icon tooltip-wrap" tabindex="0">i
+                  <span class="tooltip">Patient's age in years. The dataset includes patients aged 21–81.</span>
+                </span>
+              </label>
+              <input class="field-input" type="number" id="age"
+                     min="1" max="120" step="1" value="30" required>
+              <div class="field-error" id="ageErr"></div>
+            </div>
+          </div>
+
+          <!-- Glucose -->
+          <div class="field-group">
+            <label class="field-label" for="glucose">
+              Plasma Glucose
+              <span class="field-unit">mg/dL — 2-hour OGTT</span>
+              <span class="info-icon tooltip-wrap" tabindex="0">i
+                <span class="tooltip">Plasma glucose concentration from a 2-hour oral glucose tolerance test (OGTT). Normal fasting is 70–99 mg/dL. Values of 0 are treated as missing and replaced by the dataset median (~117).</span>
+              </span>
+            </label>
+            <input class="field-input" type="number" id="glucose"
+                   min="0" max="600" step="1" value="120" required>
+            <div class="field-error" id="glucoseErr"></div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="bloodPressure">
+                Blood Pressure
+                <span class="field-unit">mm Hg (diastolic)</span>
+                <span class="info-icon tooltip-wrap" tabindex="0">i
+                  <span class="tooltip">Diastolic blood pressure in mm Hg. Normal is below 80 mm Hg. Zero values are replaced by the dataset median (~72).</span>
+                </span>
+              </label>
+              <input class="field-input" type="number" id="bloodPressure"
+                     min="0" max="200" step="1" value="72" required>
+              <div class="field-error" id="bloodPressureErr"></div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="skinThickness">
+                Skin Thickness
+                <span class="field-unit">mm (triceps)</span>
+                <span class="info-icon tooltip-wrap" tabindex="0">i
+                  <span class="tooltip">Triceps skin-fold thickness in mm. This measures subcutaneous fat and correlates with body fat percentage. Zero replaced by dataset median (~23 mm).</span>
+                </span>
+              </label>
+              <input class="field-input" type="number" id="skinThickness"
+                     min="0" max="100" step="1" value="23" required>
+              <div class="field-error" id="skinThicknessErr"></div>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="insulin">
+                Insulin
+                <span class="field-unit">mu U/ml (2-hr serum)</span>
+                <span class="info-icon tooltip-wrap" tabindex="0">i
+                  <span class="tooltip">2-hour serum insulin level in mu U/ml. Normal post-glucose values are below 140 mu U/ml. Zero replaced by dataset median (~30.5).</span>
+                </span>
+              </label>
+              <input class="field-input" type="number" id="insulin"
+                     min="0" max="900" step="1" value="80" required>
+              <div class="field-error" id="insulinErr"></div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="bmi">
+                BMI
+                <span class="field-unit">kg/m²</span>
+                <span class="info-icon tooltip-wrap" tabindex="0">i
+                  <span class="tooltip">Body Mass Index = weight(kg) / height(m)². Healthy range: 18.5–24.9. Overweight: 25–29.9. Obese: ≥30. Zero replaced by dataset median (~32).</span>
+                </span>
+              </label>
+              <input class="field-input" type="number" id="bmi"
+                     min="0" max="70" step="0.1" value="28.5" required>
+              <div class="field-error" id="bmiErr"></div>
+            </div>
+          </div>
+
+          <!-- DPF -->
+          <div class="field-group">
+            <label class="field-label" for="dpf">
+              Diabetes Pedigree Function
+              <span class="field-unit">score</span>
+              <span class="info-icon tooltip-wrap" tabindex="0">i
+                <span class="tooltip">A function that scores the likelihood of diabetes based on family history. Higher values (> 0.5) indicate stronger hereditary risk. Typical range: 0.078 – 2.42.</span>
+              </span>
+            </label>
+            <input class="field-input" type="number" id="dpf"
+                   min="0" max="3" step="0.001" value="0.47" required>
+            <div class="field-error" id="dpfErr"></div>
+          </div>
+
+          <button class="btn-predict" type="submit" id="predictBtn">
+            Check My Risk
+          </button>
+
+          <p class="disclaimer">
+            ⚠ This tool is for educational and research purposes only. It does not constitute
+            medical advice or a clinical diagnosis. Always consult a licensed healthcare provider
+            for professional medical evaluation.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results + History ──────────────────────────── -->
+    <div style="display:flex; flex-direction:column; gap:24px;">
+
+      <!-- Result card -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Prediction Result</h2>
+          <p>Risk assessment from the trained Logistic Regression model.</p>
+        </div>
+        <div class="card-body">
+
+          <!-- Empty state -->
+          <div id="emptyState" class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p>Fill in the form and press <strong>Check My Risk</strong> to see your result.</p>
+          </div>
+
+          <!-- Result panel -->
+          <div id="resultPanel" class="result-panel">
+            <!-- Header -->
+            <div class="result-header">
+              <div class="risk-emoji" id="riskEmoji">—</div>
+              <div class="risk-info">
+                <div class="risk-badge" id="riskBadge">—</div>
+                <div class="risk-sub">Based on Logistic Regression (log_model.pkl)</div>
+              </div>
+            </div>
+
+            <!-- Probability bar -->
+            <div class="prob-section">
+              <div class="prob-header">
+                <span id="probLabel">Diabetes probability</span>
+                <span style="color:var(--text3); font-size:12px;">Logistic Regression</span>
+              </div>
+              <div class="prob-track">
+                <div class="prob-fill" id="probBarFill"></div>
+              </div>
+            </div>
+
+            <!-- Recommendation -->
+            <div class="recommendation-box">
+              <div class="rec-label">Clinical Recommendation</div>
+              <div id="recommendation"></div>
+            </div>
+
+            <!-- Feature contributions -->
+            <div class="contrib-section">
+              <div class="contrib-title">Top Contributing Factors</div>
+              <div id="contributionsChart"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- History + About card -->
+      <div class="card">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="history">
+            History <span class="history-count" id="historyCount">0</span>
+          </button>
+          <button class="tab-btn" data-tab="about">About</button>
+          <button class="tab-btn" data-tab="cloud">Cloud Architecture</button>
+        </div>
+
+        <div id="tab-history" class="tab-pane active">
+          <div class="history-actions">
+            <button class="btn-clear" id="clearHistory">Clear History</button>
+          </div>
+          <div id="historyList"></div>
+        </div>
+
+        <div id="tab-about" class="tab-pane">
+          <div class="about-section">
+            <h3>About This System</h3>
+            <p>
+              This is a Cloud Computing coursework project from Makerere University,
+              demonstrating how machine learning can be deployed on cloud infrastructure
+              to deliver accessible health screening at scale.
+            </p>
+            <p>The prediction engine uses a <strong>Soft Voting Ensemble</strong>:</p>
+            <div style="margin: 10px 0;">
+              <span class="model-tag"><span class="model-tag-dot"></span>Logistic Regression (active — client-side)</span>
+              <span class="model-tag" style="opacity:.6"><span class="model-tag-dot" style="background:#94a3b8"></span>Random Forest (ensemble extension)</span>
+              <span class="model-tag" style="opacity:.6"><span class="model-tag-dot" style="background:#94a3b8"></span>Neural Network MLP (ensemble extension)</span>
+            </div>
+            <h3>Dataset</h3>
+            <p>
+              Trained on the <strong>Pima Indians Diabetes Dataset</strong> (UCI ML Repository),
+              768 records, 8 clinical features expanded to 15 via feature engineering (interaction terms).
+              The dataset is limited to female patients aged ≥ 21.
+            </p>
+            <h3>Limitations</h3>
+            <ul>
+              <li>Trained on a single demographic (Pima women, age ≥ 21)</li>
+              <li>8 input features — clinical assessments use many more</li>
+              <li>~72% accuracy — not clinically sufficient as a standalone tool</li>
+              <li>Not a substitute for formal medical screening</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="tab-cloud" class="tab-pane">
+          <div class="about-section">
+            <h3>Cloud Architecture (IaaS / PaaS / SaaS)</h3>
+            <p>This system demonstrates all three NIST cloud service models:</p>
+            <div class="arch-list">
+              <div class="arch-item">
+                <span class="arch-layer layer-saas">SaaS</span>
+                <span>This web app — served via GitHub Pages CDN. Patients access it from any browser with no installation.</span>
+              </div>
+              <div class="arch-item">
+                <span class="arch-layer layer-paas">PaaS</span>
+                <span>API server (FastAPI) deployable on Render / Google App Engine for RF + MLP ensemble extensions. Managed PostgreSQL (Neon) for prediction history storage.</span>
+              </div>
+              <div class="arch-item">
+                <span class="arch-layer layer-iaas">IaaS</span>
+                <span>Cloud VM (GCP Compute Engine / AWS EC2) hosting the ML inference container. Object storage bucket holding model .pkl files and training data.</span>
+              </div>
+            </div>
+            <h3>Why GitHub Pages?</h3>
+            <p>
+              Because the Logistic Regression model is mathematically a simple dot product
+              + sigmoid function, the full trained model (coefficients + scaler) is embedded
+              directly into this JavaScript file. This means:
+            </p>
+            <ul>
+              <li>Zero cold starts (unlike Render free tier which sleeps after 15 min)</li>
+              <li>Globally distributed via GitHub's CDN</li>
+              <li>No API keys, no authentication overhead</li>
+              <li>100% free, indefinitely</li>
+            </ul>
+            <p>
+              For the full ensemble (RF + MLP), a <strong>Cloudflare Worker</strong>
+              (free: 100k requests/day, 0ms cold start) is recommended over Render
+              as the API backend.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- end right column -->
+
+  </div>
+  <!-- end main-grid -->
+</div>
+<!-- end site-wrap -->
+
+<!-- ══ FOOTER ══════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="site-wrap">
+    <p>
+      <strong>DiabetesRisk</strong> — Cloud Computing Coursework Project<br>
+      Makerere University · College of Computing and Information Sciences<br>
+      Ssempala Harry · <span id="yearSpan"></span> ·
+      <a href="https://github.com" target="_blank" rel="noopener">View on GitHub</a>
+    </p>
+    <p style="margin-top:6px; font-size:11px;">
+      Model trained on Pima Indians Diabetes Dataset (UCI ML Repository) ·
+      For academic and educational purposes only — not a clinical diagnostic tool.
+    </p>
+  </div>
+</footer>
+
+<script src="js/model.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
